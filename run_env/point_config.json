@@ -1,0 +1,174 @@
+{
+  "Libraries":{
+    "moja.modules.tier1_rice": {
+      "library": "moja.modules.tier1_riced.dll",
+      "path": "%LOCAL_LIBS%",
+      "type": "external"
+    },
+    "moja.modules.gdal": {
+      "library": "moja.modules.gdald.dll",
+      "path": "%MOJA_LIBS%",
+      "type": "external"
+      }
+   },
+  "operationManager": {
+    "name": "Simple",
+    "use_kahan": false,
+    "allow_zero_result_transfers": false
+  },
+  "LocalDomain": {
+    "type": "point",
+    "start_date": "1960/01/01",
+    "end_date": "1962/1/31",
+    "sequencer_library": "internal.flint",
+    "sequencer": "CalendarAndEventFlintDataSequencer",
+    "simulateLandUnit": "simulateLandUnit",
+    "landUnitBuildSuccess": "landUnitBuildSuccess"
+  },
+  "Pools": ["CH4", "Rice"],
+  "Variables": [
+    {
+      "admin_level_3": 1
+    },
+    {
+      "localDomainId": 1
+    },
+    {
+      "simulateLandUnit": true
+    },
+    {
+			"landUnitBuildSuccess": true
+		},
+		{
+			"landUnitArea": 1.0
+		},
+    {
+      "spatialLocationInfo": {
+        "flintdata": {
+          "library": "internal.flint",
+          "type": "SpatialLocationInfo"
+        }
+      }
+    },	
+    {
+        "region": 1
+    },
+    {
+      "region_ef": {
+        "transform": {
+            "library": "internal.flint",
+            "type": "SQLQueryTransform",
+            "provider": "SQLite",
+            "queryString": "select id, region, ef from region_ef where id = {var:region};"
+          }
+      }
+    },
+    {
+      "organic_amendment": {
+        "transform": {
+            "library": "internal.flint",
+            "type": "SQLQueryTransform",
+            "provider": "SQLite",
+            "queryString": "select id, organic_amendment, cf from organic_amendment;"
+          }
+      }
+    },
+    {
+      "water_regime_sf": {
+        "transform": {
+            "library": "internal.flint",
+            "type": "SQLQueryTransform",
+            "provider": "SQLite",
+            "queryString": "select id, water_regime, sf from water_regime_sf;"
+          }
+      }
+    },
+    {
+      "water_regime_prior_sf": {
+        "transform": {
+            "library": "internal.flint",
+            "type": "SQLQueryTransform",
+            "provider": "SQLite",
+            "queryString": "select id, water_regime_prior, sf from water_regime_prior_sf;"
+          }
+      }
+    },
+    {
+      "cultivation_period": {
+        "transform": {
+            "library": "internal.flint",
+            "type": "SQLQueryTransform",
+            "provider": "SQLite",
+            "queryString": "select id, region, period from cultivation_period where id = {var:region};"
+          }
+      }
+    },
+    {
+        "eventqueue": {
+          "flintdata": {
+            "library": "internal.flint",
+            "type": "EventQueue",
+            "settings": {
+              "events": [
+                {
+                  "date": {
+                    "$date": "1960/05/01"
+                  },
+                  "id": 1,
+                  "type": "tier1_rice.RiceHarvestEvent",
+                  "name": "Rice Harvest Event",
+                  "organic_amendment_is_applied": 1,
+                  "cropping_season": 2,
+                  "water_regime": 2,
+                  "water_regime_prior": 1,
+                  "rice_area": 750000,
+                  "organic_amendment_input": [
+                    {
+                      "type": 1,
+                      "rate": 2
+                    }
+                  ]
+                  
+                }
+              ]
+            }
+          }
+        }
+    }  
+  ],
+  "Modules": {
+    "TransactionManagerEndOfStepModule": {
+      "library": "internal.flint",
+      "order": 1
+    },
+    "CalendarAndEventFlintDataSequencer": {
+      "library": "internal.flint",
+      "order": 2
+    },
+    "DisturbanceEventModule": {
+      "enabled":true,
+        "library":"moja.modules.tier1_rice",
+        "order":3
+      },
+    "OutputerStream": {
+        "enabled": true,
+        "library": "internal.flint",
+        "order": 11,
+        "settings": {
+          "output_filename": "Example_Point_Stock.csv",
+          "output_to_screen": true,
+          "output_info_header": true
+        }
+      },
+      "OutputerStreamFlux": {
+        "enabled": true,
+        "library": "internal.flint",
+        "order": 12,
+        "settings": {
+          "output_filename": "Example_Point_Flux.csv",
+          "output_to_screen": false,
+          "output_info_header": true
+        }
+      }
+  }
+}

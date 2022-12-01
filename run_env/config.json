@@ -1,0 +1,308 @@
+{
+  "Libraries":{
+   "moja.modules.tier1_rice": {
+      "library": "moja.modules.tier1_riced.dll",
+      "path": "%LOCAL_LIBS%",
+      "type": "external"
+    },
+    "moja.modules.gdal": {
+      "library": "moja.modules.gdald.dll",
+      "path": "%MOJA_LIBS%",
+      "type": "external"
+      }
+   },
+  "operationManager": {
+    "name": "Simple",
+    "use_kahan": false,
+    "allow_zero_result_transfers": false
+  },
+	"LocalDomain": {
+		"type": "spatial_tiled",
+		"start_date": "1960/01/01",
+		"end_date": "1962/12/31",
+		"sequencer_library": "internal.flint",
+		"sequencer": "CalendarAndEventFlintDataSequencer",
+		"simulateLandUnit": "simulateLandUnit",
+		"landUnitBuildSuccess": "landUnitBuildSuccess",
+		"landscape_cells": {
+			"iteration_type": "CellIndex",
+			"num_threads": 0,
+			"provider": "FlintTiled",
+			"cells": [
+				{
+					"tile_index": 44966,
+					"block_index": 90,
+					"cell_index": 83244
+				}
+			]
+		},		
+		"landscape": {
+			"iteration_type": "BlockIndex",
+			"num_threads": 0,
+			"provider": "FlintTiled",
+			"blocks": [
+				{
+					"tile_index": 44966,
+					"block_index": 90
+				},
+        {
+					"tile_index": 44965,
+					"block_index": 99
+				}
+			]
+		},
+		"operationManager": {
+			"name": "Simple",
+			"use_kahan": false,
+			"allow_zero_result_transfers": false
+		},
+		"settings":{
+			"sampling_percent": 0.001,
+			"random_sampling": true,
+      "randomSeedBlock": { "$uint32" : 1158849901 }
+		}
+	},
+  "Pools": ["CH4", "Rice"],
+  "Variables": [
+    { 
+      "simulationUnitData": {
+        "flintdata": {
+          "library": "moja.modules.tier1_rice",
+          "type": "SimulationUnitData"
+        }
+      }
+    },
+    {
+      "admin_level_3": {
+				"transform": {
+					"data_id": "admin_level_3",
+					"library": "internal.flint",
+					"provider": "FlintTiled",
+					"type": "LocationIdxFromFlintDataTransform"
+				}
+			}
+    },
+    {
+      "rice_events": {
+        "transform": {
+            "library": "internal.flint",
+            "type": "SQLQueryTransform",
+            "provider": "SQLite",
+            "queryString": "select f.id, f.admin_level_id,f.year, f.frequency,s.total_frequency, f.organic_amendment_is_applied, f.cropping_season,f.water_regime, f.water_regime_prior, f.rice_area, f.straw_shortly_rate, f.straw_long_rate, f.compost_rate, f.farmyard_manure, f.green_manure from rice_events as f join (select id, sum(frequency) as total_frequency, year from rice_events group by year) as s on f.year=s.year where admin_level_id = {var:admin_level_3};"
+          }
+      }
+    },
+    {
+      "localDomainId": 1
+    },
+    {
+      "simulateLandUnit": true
+    },
+    {
+			"landUnitBuildSuccess": true
+		},
+		{
+			"landUnitArea": 1.0
+		},
+    {
+      "spatialLocationInfo": {
+        "flintdata": {
+          "library": "internal.flint",
+          "type": "SpatialLocationInfo",
+          "settings": {
+          }
+        }
+      }
+    },	
+    {
+        "region":  {
+          "transform": {
+            "data_id": "region",
+            "library": "internal.flint",
+            "provider": "FlintTiled",
+            "type": "LocationIdxFromFlintDataTransform"
+          }
+        }
+    },
+    {
+      "region_ef": {
+        "transform": {
+            "library": "internal.flint",
+            "type": "SQLQueryTransform",
+            "provider": "SQLite",
+            "queryString": "select id, region, ef from region_ef where id = {var:region};"
+          }
+      }
+    },
+    {
+      "organic_amendment": {
+        "transform": {
+            "library": "internal.flint",
+            "type": "SQLQueryTransform",
+            "provider": "SQLite",
+            "queryString": "select id, organic_amendment, cf from organic_amendment;"
+          }
+      }
+    },
+    {
+      "water_regime_sf": {
+        "transform": {
+            "library": "internal.flint",
+            "type": "SQLQueryTransform",
+            "provider": "SQLite",
+            "queryString": "select id, water_regime, sf from water_regime_sf;"
+          }
+      }
+    },
+    {
+      "water_regime_prior_sf": {
+        "transform": {
+            "library": "internal.flint",
+            "type": "SQLQueryTransform",
+            "provider": "SQLite",
+            "queryString": "select id, water_regime_prior, sf from water_regime_prior_sf;"
+          }
+      }
+    },
+    {
+      "cultivation_period": {
+        "transform": {
+            "library": "internal.flint",
+            "type": "SQLQueryTransform",
+            "provider": "SQLite",
+            "queryString": "select id, region, period from cultivation_period where id = {var:region};"
+          }
+      }
+    },
+    {
+        "eventqueue": {
+          "flintdata": {
+            "library": "internal.flint",
+            "type": "EventQueue",
+            "settings": {
+            }
+          }
+        }
+    },
+    {
+      "runStatistics": {
+        "flintdata": {
+          "library": "moja.modules.tier1_rice",
+          "type": "RunStatistics",
+          "settings": {	}
+        }
+      }
+  },
+  {
+    "reportingClassifiers": {
+      "transform": {
+        "library": "internal.flint",
+        "type": "CompositeTransform",
+        "vars": [	"admin_level_3" ],
+        "allow_nulls": true
+      }
+    }
+  }
+  ],
+  "Modules": {
+    "TransactionManagerEndOfStepModule": {
+      "library": "internal.flint",
+      "order": 1
+    },
+    "CalendarAndEventFlintDataSequencer": {
+      "library": "internal.flint",
+      "order": 2
+    },
+    "DisturbanceEventModule": {
+      "enabled":true,
+        "library":"moja.modules.tier1_rice",
+        "order":4
+      },
+
+    "BuildLandUnitModule": {
+      "enabled":true,
+        "library":"moja.modules.tier1_rice",
+        "order":3
+    },
+    "AggregatorLandUnit": {
+		  "enabled": true,
+		  "library": "moja.modules.tier1_rice",
+		  "order": 80,
+		  "settings": {
+			"output_month_12_only": true,
+			"tileIndex_dim_enabled": false,
+			"blockIndex_dim_enabled": false,
+			"cellIndex_dim_enabled": false,
+			"do_stock": true,
+			"do_run_statistics": true,
+      "reporting_classifier_set": "reportingClassifiers"
+		  }
+		},
+		"AggregatorError": {
+		  "enabled": true,
+		  "library": "moja.modules.tier1_rice",
+		  "order": 90,
+		  "settings": {
+			"log_errors": true,
+			"log_errors_max_number": 32000,
+			"log_errors_per_block": true
+		  }
+		},
+		"LandUnitSQLiteWriter": {
+		  "enabled": true,
+		  "library": "moja.modules.tier1_rice",
+		  "order": 100,
+		  "settings": {
+			"databasename": "./data/output/results/dbs/output_{var:spatialLocationInfo.tileIdx}_{var:spatialLocationInfo.blockIdx}_{var:spatialLocationInfo.cellIdx}.db"
+		  }
+		},
+		"WriteVariableGeotiff": {
+			"enabled": true,
+			"library": "moja.modules.gdal",
+			"order": 10,
+			"settings": {
+				"output_path": "./data/output/results/spatial_outputs/grids",
+				"use_indexes_for_folder_name": true,
+				"items": [
+          {
+						"enabled": true,
+						"data_name": "CH4",
+						"pool_name": "CH4",
+						"variable_data_type": "float",
+						"on_notification": "OutputStep",
+						"output_annual_only": true,
+						"nodata_value": -9999
+					},
+					{
+						"enabled": true,
+						"data_name": "Rice",
+						"pool_name": "Rice",
+						"variable_data_type": "float",
+						"on_notification": "OutputStep",
+						"output_annual_only": true,
+						"nodata_value": -9999
+					},
+					{
+						"enabled": true,
+						"data_name": "simulate_land_unit",
+						"variable_name": "simulateLandUnit",
+						"variable_data_type": "UInt8",
+						"on_notification": "TimingShutdown",
+						"nodata_value": 255,
+						"apply_area_adjustment": true
+					},
+					{
+						"enabled": true,
+						"data_name": "errors",
+						"variable_name": "spatialLocationInfo",
+						"property_name": "errorCode",
+						"variable_data_type": "UInt8",
+						"on_notification": "Error",
+						"nodata_value": 255,
+						"apply_area_adjustment": true
+					}
+				]
+			}
+		}
+  }
+}

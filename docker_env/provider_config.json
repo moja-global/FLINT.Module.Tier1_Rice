@@ -1,0 +1,41 @@
+{
+    "Providers": {
+        "SQLite": {
+            "layers": null,
+            "library": "internal.flint",
+            "path": "/usr/local/src/FLINT.Module.Tier1_Rice/run_env/database.db",
+            "type": "SQLite"
+        },
+        "FlintTiled": {
+            "type": "RasterTiledGDAL",
+            "library": "moja.modules.gdal",
+            "tileLatSize": 1.0,
+            "tileLonSize": 1.0,
+            "blockLatSize": 0.1,
+            "blockLonSize": 0.1,
+            "cellLatSize": 0.00025,
+            "cellLonSize": 0.00025,
+            "layers": [
+                {
+                    "name": "admin_level_3",
+                    "layer_type": "GridLayer",
+                    "layer_data": "Byte",
+                    "layer_prefix": "",
+                    "layer_path": "/usr/local/src/FLINT.Module.Tier1_Rice/run_env/rasters/single_rice.tif",
+                    "metadata_required": false,
+                    "nodata": 255
+                  }, 
+                  {
+                    "name": "region",
+                    "layer_type": "GridLayer",
+                    "layer_data": "UInt8",
+                    "layer_prefix": "",
+                    "layer_path": "/usr/local/src/FLINT.Module.Tier1_Rice/run_env/rasters/region.tif",
+                    "metadata_required": false,
+                    "nodata": 255
+                  }
+            ]
+          }
+        
+    }
+}
